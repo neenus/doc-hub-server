@@ -86,3 +86,50 @@ export const notifyAdminVirus = (infectedFiles, user) => {
     });
   });
 }
+
+// Send upload secure link email to user
+export const sendSecureLink = (to, link) => {
+  const template = './templates/upload-secure-link.handlebars';
+
+  const secureLink = process.env.NODE_ENV === 'production' ? `${process.env.PROD_CLIENT_URL}/${link}` : `${process.env.DEV_CLIENT_URL}/${link}`;
+  const subject = 'Upload Files Request - NR Accounting';
+  console.log("in sendSecureLink function: ", { secureLink })
+
+  const mailOptions = {
+    from: process.env.NODEMAILER_FROM,
+    to,
+    subject: subject,
+    html: compileTemplate(template, { secureLink }),
+  };
+
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        reject(new ErrorResponse(error.message, 500));
+      } else {
+        resolve(info);
+      }
+    });
+  });
+};
+
+// Send OTP to user
+export const sendOtp = (to, otp) => {
+  const subject = 'NR Accounting - Verification Code';
+  const mailOptions = {
+    from: process.env.NODEMAILER_FROM,
+    to,
+    subject: subject,
+    html: `<p>Your verification code is: <strong>${otp}</strong></p>`,
+  };
+
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        reject(new ErrorResponse(error.message, 500));
+      } else {
+        resolve(info);
+      }
+    });
+  });
+}
