@@ -2,6 +2,8 @@ import ErrorResponse from '../utils/errorResponse.js';
 import User from '../models/User.js';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
+import { sendEmail } from '../utils/mailer.js';
 
 // @desc    Get all users
 // @route   GET /api/v1/users
@@ -99,6 +101,9 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
+// @desc    Delete user
+// @route   DELETE /api/v1/users/:id
+// @access  Private/Admin
 export const deleteUser = async (req, res, next) => {
 
   const userId = req.params.id;
@@ -120,6 +125,44 @@ export const deleteUser = async (req, res, next) => {
     return next(error);
   }
 
+}
+
+// @desc    User Password Reset by Admin
+// @route   POST /api/v1/users/:id/reset-password
+// @access  Private/Admin
+export const resetUserPassword = async (req, res, next) => {
+
+  if (!req.user || req.user?.role !== 'admin') {
+    return next(new ErrorResponse('Not authorized to access this route', 401));
+  }
+
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return next(new ErrorResponse('User not found', 404));
+
+    const newPassword = crypto.randomBytes(6).toString("base64url");
+    user.password = newPassword;
+    await user.save();
+
+    await sendEmail(
+      user.email,
+      "password-reset-email",
+      {
+        name: user.name,
+        email: user.email,
+        password: newPassword,
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        message: 'Password reset successful',
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
 }
 
 // Helper function to remove user directory and all files.
