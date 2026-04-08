@@ -31,7 +31,7 @@
   "type": "module",
   "devDependencies": {
     "cz-conventional-changelog": "3.3.0",
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.1.14"
   },
   "config": {
     "commitizen": {
