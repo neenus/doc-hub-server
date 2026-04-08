@@ -13,7 +13,7 @@
     "@syncfusion/ej2-filemanager-node-filesystem": "^17.2.34",
     "archiver": "^7.0.0",
     "bcryptjs": "^2.4.3",
-    "clamscan": "^2.1.2",
+    "clamscan": "^2.4.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.3.1",
